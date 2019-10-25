@@ -11,8 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ProductLog {
-    private String startTime = "2018-01-01 00:00:00";
-    private String endTime = "2018-12-01 00:00:00";
+    private String startTime = "2018-01-01";
+    private String endTime = "2018-12-01";
 
     //生产数据
     //用于存放随机的电话号码
@@ -78,11 +78,11 @@ public class ProductLog {
      * 形式：15064972307，17868457605，2019-09-28 13:28:29 0223
      */
     public void product() {
-        String callerNum;
-        String calleeNum;
+        String callerNum = null;
+        String calleeNum = null;
 
-        String callerName;
-        String calleeName;
+        String callerName = null;
+        String calleeName = null;
 
         //取主叫电话号码
         int callerIndex = (int) (Math.random() * phoneList.size());
@@ -94,14 +94,14 @@ public class ProductLog {
             int calleeIndex = (int) (Math.random() * phoneList.size());
             calleeNum = phoneList.get(callerIndex);
             calleeName = phoneNameMap.get(calleeNum);
-            if (calleeNum.equals(callerNum)) break;
+            if (!calleeNum.equals(callerNum)) break;
         }
 
         String buildTime = randomBuildTime(startTime, endTime);
         DecimalFormat decimalFormat = new DecimalFormat();
-        String duration = decimalFormat.format((int) 30 * 60 * Math.random());
+        String duration = decimalFormat.format((int) (30 * 60 * Math.random()));
 
-        System.out.println(callerNum+","+callerName+","+calleeNum+","+calleeName+","+buildTime+duration);
+        System.out.println(callerNum + "," + callerName + "," + calleeNum + "," + calleeName + "," + buildTime + "," + duration);
 
     }
 
@@ -110,17 +110,21 @@ public class ProductLog {
      * startTimeTS + （endTimeTS - startTimeTs) * Math.random();
      */
     public String randomBuildTime(String startTime, String endTime) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
             Date startDate = simpleDateFormat.parse(startTime);
             Date endDate = simpleDateFormat.parse(endTime);
 
+            //容错处理
             if (endDate.getTime() < startDate.getTime()) return null;
 
-            long randomTS = startDate.getTime() + endDate.getTime() - startDate.getTime();
+            //随机时间
+            long randomTS = (long) (startDate.getTime() + (endDate.getTime() - startDate.getTime()) * Math.random());
             Date resultDate = new Date(randomTS);
             String resultDateString = simpleDateFormat.format(resultDate);
+
+            //返回通话建立时间
             return resultDateString;
 
         } catch (ParseException e) {
@@ -145,7 +149,7 @@ public class ProductLog {
     public static void main(String[] args) throws InterruptedException {
         ProductLog productLog = new ProductLog();
         productLog.initPhone();
-        while (true){
+        while (true) {
             Thread.sleep(300);
             productLog.product();
         }
